@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Monster Mash-Up: Comparative Challenge (A2-B1)</title>
+    <style>
+        /* CSS for a readable, yet spooky, look on a softboard */
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Gothic+A1:wght@400;700&display=swap');
+
+        /* 1. COMPACT LAYOUT FOR SINGLE SCREEN VIEW */
+        body {
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+            font-family: 'Gothic A1', sans-serif;
+            text-align: center;
+            padding: 10px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-y: auto; 
+        }
+
+        header {
+            flex-shrink: 0;
+            padding: 5px 0;
+        }
+
+        h1, h2 {
+            font-family: 'Creepster', cursive;
+            color: #ff6600;
+            text-shadow: 2px 2px #000000;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .scoreboard {
+            flex-shrink: 0;
+            margin: 10px auto;
+            border: 4px solid #6a0dad;
+            border-radius: 15px;
+            padding: 10px;
+            max-width: 95%;
+        }
+
+        .scoreboard table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1.2em; /* Adjusted for 4 teams */
+            color: #ccff00;
+        }
+
+        .scoreboard th, .scoreboard td {
+            border: 2px solid #444;
+            padding: 5px;
+        }
+
+        .monster-grid {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: nowrap;
+            padding: 10px 0;
+            background-color: #2b2b2b;
+            overflow-x: auto;
+        }
+
+        .monster-card {
+            width: 14%;
+            min-width: 100px;
+            margin: 5px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid #ff6600;
+            border-radius: 8px;
+            background-color: #383838;
+        }
+
+        .monster-card img {
+            width: 80%;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            width: 100%;
+            aspect-ratio: 9 / 16;
+            object-fit: cover;
+        }
+
+        .monster-card p {
+            margin: 0;
+            font-size: 0.9em;
+        }
+
+
+        /* Reading Material Styles */
+        #fact-file {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(26, 26, 26, 0.98);
+            z-index: 1000;
+            overflow-y: auto;
+            display: none;
+            padding: 20px;
+        }
+
+        #fact-file table {
+            width: 90%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            font-size: 1.1em;
+            color: #f0f0f0;
+        }
+
+        #fact-file th, #fact-file td {
+            border: 1px solid #6a0dad;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        /* Main challenge area takes remaining space */
+        .challenge-box {
+            flex-grow: 1; 
+            margin: 10px auto;
+            border: 4px solid #6a0dad;
+            border-radius: 15px;
+            padding: 15px;
+            max-width: 95%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .prompt-box {
+            background-color: #383838;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            margin-top: 5px;
+            border-left: 5px solid #ff6600;
+            text-align: left;
+        }
+
+        /* Styling for the Listening Area (replaces the textarea) */
+        #listening-area {
+            background-color: #383838;
+            border: 3px dashed #ccff00;
+            border-radius: 5px;
+            color: #ccff00;
+            font-size: 1.4em;
+            padding: 20px;
+            text-align: center;
+            margin-top: 10px;
+            min-height: 10vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        .controls {
+            flex-shrink: 0;
+            margin-top: 10px;
+        }
+        
+        .action-button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* Listen button style */
+        .listen-button {
+            background-color: #ccff00;
+            color: #1a1a1a;
+            border: none;
+            font-size: 1.6em;
+            padding: 15px 30px;
+            margin-bottom: 10px;
+        }
+        
+        .new-challenge-button {
+             background-color: #ff6600;
+             color: #1a1a1a;
+             border: none;
+        }
+        
+        .fact-button {
+            background-color: #6a0dad;
+            color: white;
+            border: none;
+        }
+        
+        /* Styling for the new score buttons */
+        .score-button-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .score-button {
+            padding: 15px 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 3px solid white;
+        }
+
+        .score-bats { background-color: #007bff; color: white; border-color: #87ceeb; }
+        .score-spiders { background-color: #800080; color: white; border-color: #ff00ff; }
+        .score-wolves { background-color: #d35400; color: white; border-color: #f1c40f; }
+        .score-ghosts { background-color: #27ae60; color: white; border-color: #2ecc71; }
+        
+        /* New Challenge Input Styling */
+        .challenge-setting {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #444;
+            border-radius: 8px;
+            color: #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.0em;
+        }
+        .challenge-setting input {
+            background-color: #2b2b2b;
+            color: #ccff00;
+            border: 1px solid #ff6600;
+            padding: 5px;
+            width: 50px;
+            text-align: center;
+            border-radius: 4px;
+        }
+
+
+        footer {
+            flex-shrink: 0;
+            margin-top: 10px;
+            font-size: 1.0em;
+            color: #ff6600;
+            padding: 5px;
+            border-top: 2px dashed #444;
+        }
+    
+        /* Disable scroll only when overlays are open */
+        body.no-scroll { overflow: hidden; }
+    </style>
+</head>
+<body>
+
+    <div id="fact-file">
+        <h2 style="font-size: 2em; margin-top: 0;">🧛 MONSTER FACT FILE: The Unofficial Handbook 👻</h2>
+        <p>Use this information to compare the monsters and prove your knowledge of English grammar. Pay attention to the numbers and descriptions!</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Monster</th>
+                    <th>Age (Years)</th>
+                    <th>Height (Metres)</th>
+                    <th>Speed (kph)</th>
+                    <th>Diet</th>
+                    <th>Special Skill / Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>Vampire</strong> 🧛</td><td>550</td><td>1.85</td><td>45</td><td>Blood</td><td>The <strong>most intelligent</strong> of all the monsters. Can hypnotize prey.</td></tr>
+                <tr><td><strong>Werewolf</strong> 🐺</td><td>15</td><td>2.15</td><td>60</td><td>Meat</td><td>The <strong>loudest</strong> howler in the group. Has very sharp claws.</td></tr>
+                <tr><td><strong>Zombie</strong> 🧟</td><td>5</td><td>1.70</td><td>5</td><td>Brains</td><td>The <strong>slowest</strong> monster. Extremely strong, but easily distracted.</td></tr>
+                <tr><td><strong>Ghost</strong> 👻</td><td>300</td><td>1.75</td><td>90</td><td>Nothing</td><td>Can travel through walls. The <strong>fastest</strong> monster, but the <strong>least aggressive</strong>.</td></tr>
+                <tr><td><strong>Witch</strong> 🧙‍♀️</td><td>80</td><td>1.60</td><td>50</td><td>Potions</td><td>The <strong>most colorful</strong> monster (always wears purple and green). Can cast terrible spells.</td></tr>
+                <tr><td><strong>Skeleton</strong> 💀</td><td>700</td><td>1.80</td><td>20</td><td>Air</td><td>The <strong>oldest</strong> monster. Easily falls apart—the <strong>most fragile</strong> monster.</td></tr>
+            </tbody>
+        </table>
+        
+        <button class="action-button fact-button" onclick="toggleFactFile()" type="button">CLOSE FACT FILE</button>
+    </div>
+
+    <header>
+        <h1>👻 Monster Mash-Up: Comparative Challenge 🧛</h1>
+    </header>
+
+    <div class="scoreboard">
+        <h2>⚔️ TEAM SCOREBOARD ⚔️</h2>
+        <table>
+            <thead>
+                <tr><th>Team</th><th>Score</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Team Bats 🦇</td><td id="score-bats">0</td></tr>
+                <tr><td>Team Spiders 🕷️</td><td id="score-spiders">0</td></tr>
+                <tr><td>Team Wolves 🐺</td><td id="score-wolves">0</td></tr>
+                <tr><td>Team Ghosts 👻</td><td id="score-ghosts">0</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2>🧟 THE MONSTER LINEUP 💀</h2>
+    <div class="monster-grid">
+        <div class="monster-card" data-monster="Ghost">
+            <img src="ghost.png" alt="Ghost">
+            <p>Ghost</p>
+        </div>
+        <div class="monster-card" data-monster="Vampire">
+            <img src="vampire.png" alt="Vampire">
+            <p>Vampire</p>
+        </div>
+        <div class="monster-card" data-monster="Werewolf">
+            <img src="werewolf.png" alt="Werewolf">
+            <p>Werewolf</p>
+        </div>
+        <div class="monster-card" data-monster="Witch">
+            <img src="witch.png" alt="Witch">
+            <p>Witch</p>
+        </div>
+        <div class="monster-card" data-monster="Skeleton">
+            <img src="skeleton.png" alt="Skeleton">
+            <p>Skeleton</p>
+        </div>
+        <div class="monster-card" data-monster="Zombie">
+            <img src="zombie.png" alt="Zombie">
+            <p>Zombie</p>
+        </div>
+    </div>
+
+    <div class="challenge-box">
+        <h2 id="challenge-title">🧠 CURRENT CHALLENGE: Loading... 🧠</h2>
+        <div class="prompt-box">
+            <p id="prompt-structure"><strong>PROMPT:</strong> ...</p>
+            <p id="prompt-task"><strong>TASK:</strong> ...</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">(Hint: The correct comparison is worth <strong>3 points!</strong>)</p>
+        </div>
+        
+        <!-- VOICE/LISTENING AREA -->
+        <div id="listening-area">
+            Click 'START LISTENING' below when a team is ready to speak the answer.
+        </div>
+
+        <div class="controls">
+            <!-- New Listen Button -->
+            <button class="action-button listen-button" onclick="startListening()" type="button">👂 START LISTENING</button>
+            
+            <button class="action-button new-challenge-button" onclick="initiateNewChallenge()" type="button">NEXT CHALLENGE 🔄</button>
+            <button class="action-button fact-button" onclick="toggleFactFile()" type="button">REVEAL FACTS 📚</button>
+            
+            <hr style="border-top: 2px dashed #444; margin: 15px 0 10px 0;">
+            
+            <!-- CHALLENGE SETTING -->
+            <div class="challenge-setting">
+                <span>Total Challenges for Game (max 30):</span>
+                <input type="number" id="max-challenges-input" value="10" min="1" max="30">
+            </div>
+            
+            <button class="action-button" onclick="resetScoreboard()" type="button">RESET GAME (APPLY CHALLENGE COUNT) 0️⃣</button>
+            
+            <hr style="border-top: 2px dashed #444; margin: 15px 0 10px 0;">
+            
+            <!-- TEACHER SCORING (Hands-Free) -->
+            <h3 style="margin: 5px 0; color: #ccff00; font-family: 'Gothic A1', sans-serif;">TEACHER SCORING (Click Winner to Award +3)</h3>
+            <div class="score-button-grid">
+                <button class="score-button score-bats" data-team="Bats" onclick="awardPoints('Bats')">BATS WIN! 🦇</button>
+                <button class="score-button score-spiders" data-team="Spiders" onclick="awardPoints('Spiders')">SPIDERS WIN! 🕷️</button>
+                <button class="score-button score-wolves" data-team="Wolves" onclick="awardPoints('Wolves')">WOLVES WIN! 🐺</button>
+                <button class="score-button score-ghosts" data-team="Ghosts" onclick="awardPoints('Ghosts')">GHOSTS WIN! 👻</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        🎃🧙Created by Panagiotis Domvros, English and Drama Teacher, All Rights Reserved 🧙🎃
+    </footer>
+
+    <script>
+        // *** JAVASCRIPT LOGIC FOR INTERACTIVITY (HANDS-FREE, 4 TEAMS, 30 SHUFFLED CHALLENGES) ***
+        let currentChallengeIndex = -1;
+        let shuffledChallenges = [];
+        let answerSpoken = false; // Flag to track if an answer was "submitted"
+        // NEW: Max number of challenges to use in the current game instance
+        let MAX_CHALLENGES_USED = 10; 
+
+        // --- Challenge Data (30 Challenges) ---
+        const allChallenges = [
+            // SET A: Comparatives (-er than) (10 Tasks)
+            { title: "Comparative Showdown", structure: "<strong>PROMPT:</strong> Use <strong>-er than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Werewolf</strong> and the <strong>Vampire</strong> (Height)." },
+            { title: "Comparative Showdown", structure: "<strong>PROMPT:</strong> Use <strong>-er than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Witch</strong> and the <strong>Ghost</strong> (Speed)." },
+            { title: "Comparative Showdown", structure: "<strong>PROMPT:</strong> Use <strong>-er than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Skeleton</strong> and the <strong>Zombie</strong> (Age)." },
+            { title: "Comparative Showdown", structure: "<strong>PROMPT:</strong> Use <strong>-er than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Vampire</strong> and the <strong>Witch</strong> (Height)." },
+            { title: "Comparative Showdown", structure: "<strong>PROMPT:</strong> Use <strong>-er than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Werewolf</strong> and the <strong>Zombie</strong> (Speed)." },
+            { title: "Comparative Showdown", structure: "<strong>PROMPT:</strong> Use <strong>-er than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Ghost</strong> and the <strong>Skeleton</strong> (Speed)." },
+            { title: "Comparative Showdown", structure: "<strong>PROMPT:</strong> Use <strong>-er than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Zombie</strong> and the <strong>Vampire</strong> (Speed)." },
+            { title: "Comparative Showdown", structure: "<strong>PROMPT:</strong> Use <strong>-er than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Witch</strong> and the <strong>Skeleton</strong> (Height)." },
+            { title: "Comparative Showdown", structure: "<strong>PROMPT:</strong> Use <strong>-er than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Vampire</strong> and the <strong>Ghost</strong> (Age)." },
+            { title: "Comparative Showdown", structure: "<strong>PROMPT:</strong> Use <strong>-er than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Werewolf</strong> and the <strong>Witch</strong> (Speed)." },
+            
+            // SET B: Comparatives (more/less) (8 Tasks)
+            { title: "More/Less Comparison", structure: "<strong>PROMPT:</strong> Use <strong>more intelligent than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Vampire</strong> and the <strong>Werewolf</strong> (Intelligent)." },
+            { title: "More/Less Comparison", structure: "<strong>PROMPT:</strong> Use <strong>less aggressive than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Ghost</strong> and the <strong>Witch</strong> (Aggressive)." },
+            { title: "More/Less Comparison", structure: "<strong>PROMPT:</strong> Use <strong>more colorful than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Witch</strong> and the <strong>Skeleton</strong> (Colorful)." },
+            { title: "More/Less Comparison", structure: "<strong>PROMPT:</strong> Use <strong>louder than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Werewolf</strong> and the <strong>Vampire</strong> (Loud)." },
+            { title: "More/Less Comparison", structure: "<strong>PROMPT:</strong> Use <strong>less strong than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Skeleton</strong> and the <strong>Zombie</strong> (Strong)." },
+            { title: "More/Less Comparison", structure: "<strong>PROMPT:</strong> Use <strong>more fragile than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Skeleton</strong> and the <strong>Ghost</strong> (Fragile)." },
+            { title: "More/Less Comparison", structure: "<strong>PROMPT:</strong> Use <strong>less colorful than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Zombie</strong> and the <strong>Witch</strong> (Colorful)." },
+            { title: "More/Less Comparison", structure: "<strong>PROMPT:</strong> Use <strong>more aggressive than</strong>.", task: "<strong>TASK:</strong> Compare the <strong>Werewolf</strong> and the <strong>Ghost</strong> (Aggressive)." },
+            
+            // SET C: Superlatives (the -est / the most) (6 Tasks)
+            { title: "Superlative Auction", structure: "<strong>PROMPT:</strong> Use <strong>the oldest</strong>.", task: "<strong>TASK:</strong> Name the <strong>oldest</strong> monster in a full sentence." },
+            { title: "Superlative Auction", structure: "<strong>PROMPT:</strong> Use <strong>the fastest</strong>.", task: "<strong>TASK:</strong> Name the <strong>fastest</strong> monster in a full sentence." },
+            { title: "Superlative Auction", structure: "<strong>PROMPT:</strong> Use <strong>the most fragile</strong>.", task: "<strong>TASK:</strong> Name the <strong>most fragile</strong> monster in a full sentence." },
+            { title: "Superlative Auction", structure: "<strong>PROMPT:</strong> Use <strong>the slowest</strong>.", task: "<strong>TASK:</strong> Name the <strong>slowest</strong> monster in a full sentence." },
+            { title: "Superlative Auction", structure: "<strong>PROMPT:</strong> Use <strong>the most intelligent</strong>.", task: "<strong>TASK:</strong> Name the <strong>most intelligent</strong> monster in a full sentence." },
+            { title: "Superlative Auction", structure: "<strong>PROMPT:</strong> Use <strong>the tallest</strong>.", task: "<strong>TASK:</strong> Name the <strong>tallest</strong> monster in a full sentence." },
+
+
+            // SET D: As...As (Equality and Non-Equality) (6 Tasks - NEW FOCUS)
+            { title: "As...As Debate", structure: "<strong>PROMPT:</strong> Use <strong>not as tall as</strong>.", task: "<strong>TASK:</strong> State that the <strong>Zombie</strong> is <strong>not as tall as</strong> the <strong>Werewolf</strong>." },
+            { title: "As...As Debate", structure: "<strong>PROMPT:</strong> Use <strong>as fast as</strong>.", task: "<strong>TASK:</strong> State that the <strong>Vampire</strong> is <strong>not as fast as</strong> the <strong>Witch</strong> (check the facts)." },
+            { title: "As...As Debate", structure: "<strong>PROMPT:</strong> Use <strong>not so old as</strong>.", task: "<strong>TASK:</strong> State that the <strong>Ghost</strong> is <strong>not so old as</strong> the <strong>Skeleton</strong>." },
+            { title: "As...As Debate", structure: "<strong>PROMPT:</strong> Use <strong>as slow as</strong>.", task: "<strong>TASK:</strong> State that the <strong>Witch</strong> is <strong>not as slow as</strong> the <strong>Skeleton</strong>." },
+            { title: "As...As Debate", structure: "<strong>PROMPT:</strong> Use <strong>as tall as</strong>.", task: "<strong>TASK:</strong> State that the <strong>Skeleton</strong> is <strong>as tall as</strong> the <strong>Vampire</strong> (approximately: 1.80m vs 1.85m)." },
+            { title: "As...As Debate", structure: "<strong>PROMPT:</strong> Use <strong>not as...as...</strong> with 'intelligent'.", task: "<strong>TASK:</strong> State that the <strong>Zombie</strong> is <strong>not as intelligent as</strong> the <strong>Vampire</strong>." }
+        ];
+
+        // Utility function to shuffle an array (Fisher-Yates)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+
+        // --- Core Game Functions ---
+        function updateScore(team, points) {
+            const scoreElement = document.getElementById(`score-${team.toLowerCase()}`);
+            
+            if (scoreElement) {
+                let currentScore = parseInt(scoreElement.innerText) || 0;
+                currentScore += points;
+                scoreElement.innerText = currentScore;
+            }
+        }
+
+        // MODIFIED: Now sets MAX_CHALLENGES_USED and re-shuffles/starts the game
+        function resetScoreboard() {
+            // Read and validate the new max challenge count
+            const inputElement = document.getElementById('max-challenges-input');
+            let newMax = parseInt(inputElement.value);
+
+            if (isNaN(newMax) || newMax < 1 || newMax > allChallenges.length) {
+                // Default to a safe number if input is invalid
+                newMax = Math.min(10, allChallenges.length);
+                inputElement.value = newMax;
+            }
+            
+            MAX_CHALLENGES_USED = newMax;
+
+            // Reset scores in the DOM
+            document.getElementById('score-bats').innerText = 0;
+            document.getElementById('score-spiders').innerText = 0;
+            document.getElementById('score-wolves').innerText = 0;
+            document.getElementById('score-ghosts').innerText = 0;
+            
+            // Re-shuffle all challenges and slice based on the new max
+            shuffledChallenges = shuffleArray([...allChallenges]).slice(0, MAX_CHALLENGES_USED);
+            
+            initiateNewChallenge(true); 
+            
+            const area = document.getElementById('listening-area');
+            area.innerHTML = `Game Reset. **${MAX_CHALLENGES_USED}** Challenges Loaded. Click \'START LISTENING\' below when ready.`;
+            
+            // Visual feedback 
+            document.getElementById('challenge-title').innerText = '🧠 CURRENT CHALLENGE: GAME RESET! 🧠';
+        }
+        
+        // Function called by the WIN buttons
+        function awardPoints(team) {
+            if (!answerSpoken) {
+                const area = document.getElementById('listening-area');
+                area.innerHTML = '🛑 ERROR: Click \'START LISTENING\' first to confirm an answer was given.';
+                return;
+            }
+            
+            updateScore(team, 3);
+            
+            // Check if all challenges in the chosen set have been completed
+            if (currentChallengeIndex + 1 >= shuffledChallenges.length) {
+                const area = document.getElementById('listening-area');
+                area.innerHTML = '🏆 GAME OVER! Click RESET GAME to start a new set of challenges.';
+                document.getElementById('challenge-title').innerHTML = '🏆 GAME OVER! 🏆';
+            } else {
+                initiateNewChallenge(); // Automatically advance
+            }
+        }
+
+        // --- Voice/Submission Simulation ---
+        function startListening() {
+            if (currentChallengeIndex + 1 > shuffledChallenges.length) {
+                 // Game is over, prevent listening
+                return;
+            }
+
+            const area = document.getElementById('listening-area');
+            
+            // 1. Simulate "Listening" state
+            area.innerHTML = '🔴 LISTENING... SPEAK NOW! (Click a score button when the team finishes.)';
+            area.style.backgroundColor = '#5c0000';
+            area.style.borderColor = '#ff6600';
+            
+            // 2. Set the flag immediately, but keep the UI in the listening state
+            answerSpoken = true;
+            
+            // We keep the timer here to reset the visual state after a few seconds
+            setTimeout(() => {
+                // If the teacher hasn't scored yet, revert to a subtle ready state
+                if (answerSpoken) { 
+                    area.innerHTML = '✅ LISTENING COMPLETE. Score the answer or skip to the next challenge.';
+                    area.style.backgroundColor = '#383838';
+                    area.style.borderColor = '#2ecc71';
+                }
+            }, 5000); // 5 second visual feedback change
+        }
+
+        // --- Fact File Toggle ---
+        function toggleFactFile() {
+            const file = document.getElementById('fact-file');
+            const isHidden = window.getComputedStyle(file).display === 'none';
+            file.style.display = isHidden ? 'block' : 'none';
+            document.body.classList.toggle('no-scroll', isHidden);
+        }
+
+
+        // --- Main Challenge Logic ---
+        function initiateNewChallenge(reset = false) {
+            if (!reset && currentChallengeIndex + 1 >= shuffledChallenges.length) {
+                // This handles case where NEXT CHALLENGE button is hit after the game is over
+                const area = document.getElementById('listening-area');
+                area.innerHTML = '🏆 GAME OVER! Click RESET GAME to start a new set of challenges.';
+                document.getElementById('challenge-title').innerHTML = '🏆 GAME OVER! 🏆';
+                return; 
+            }
+
+            if (reset) {
+                currentChallengeIndex = -1; 
+            }
+            
+            const previousIndex = currentChallengeIndex;
+            
+            // Cycle through the sliced/shuffled array
+            currentChallengeIndex = (currentChallengeIndex + 1) % shuffledChallenges.length;
+            
+            const nextChallenge = shuffledChallenges[currentChallengeIndex];
+            
+            // Reset listening state
+            answerSpoken = false;
+            const area = document.getElementById('listening-area');
+            area.innerHTML = 'Click \'START LISTENING\' below when a team is ready to speak the answer.';
+            area.style.backgroundColor = '#383838';
+            area.style.borderColor = '#ccff00';
+
+            document.getElementById('challenge-title').innerHTML = `🧠 CURRENT CHALLENGE ${currentChallengeIndex + 1} of ${shuffledChallenges.length}: ${nextChallenge.title} 🧠`;
+            document.getElementById('prompt-structure').innerHTML = nextChallenge.structure;
+            document.getElementById('prompt-task').innerHTML = nextChallenge.task;
+
+            // Visual feedback for cycling
+            if (previousIndex === shuffledChallenges.length - 1 && currentChallengeIndex === 0 && !reset) {
+                 document.getElementById('challenge-title').innerHTML = `🧠 CHALLENGES RECYCLED (1 of ${shuffledChallenges.length}): ${nextChallenge.title} 🧠`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initial setup: Read default value, shuffle, and initiate the first challenge
+            const inputElement = document.getElementById('max-challenges-input');
+            MAX_CHALLENGES_USED = parseInt(inputElement.value);
+
+            shuffledChallenges = shuffleArray([...allChallenges]).slice(0, MAX_CHALLENGES_USED);
+            
+            // Explicitly expose ALL functions 
+            window.initiateNewChallenge = initiateNewChallenge;
+            window.toggleFactFile = toggleFactFile;
+            window.resetScoreboard = resetScoreboard;
+            window.awardPoints = awardPoints;
+            window.startListening = startListening;
+
+            // Initialize the first challenge
+            initiateNewChallenge();
+            
+        
+            // Fact File close logic 
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const file = document.getElementById('fact-file');
+                    if (window.getComputedStyle(file).display !== 'none') window.toggleFactFile();
+                }
+            });
+            document.getElementById('fact-file').addEventListener('click', (e) => {
+                if (e.target && e.target.id === 'fact-file') window.toggleFactFile();
+            });
+        });
+    </script>
+
+</body>
+</html>
