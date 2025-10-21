@@ -47,7 +47,7 @@
         .scoreboard table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 1.2em; /* Adjusted for 4 teams */
+            font-size: 1.2em; /* Adjusted for 6 teams */
             color: #ccff00;
         }
 
@@ -202,7 +202,7 @@
         /* Styling for the new score buttons */
         .score-button-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr); /* MODIFIED FOR 6 TEAMS */
             gap: 10px;
             margin-top: 10px;
         }
@@ -220,6 +220,9 @@
         .score-spiders { background-color: #800080; color: white; border-color: #ff00ff; }
         .score-wolves { background-color: #d35400; color: white; border-color: #f1c40f; }
         .score-ghosts { background-color: #27ae60; color: white; border-color: #2ecc71; }
+        /* NEW TEAMS CSS */
+        .score-witches { background-color: #9b59b6; color: white; border-color: #f39c12; }
+        .score-skeletons { background-color: #7f8c8d; color: white; border-color: #ecf0f1; }
         
         /* New Challenge Input Styling */
         .challenge-setting {
@@ -302,6 +305,8 @@
                 <tr><td>Team Spiders 🕷️</td><td id="score-spiders">0</td></tr>
                 <tr><td>Team Wolves 🐺</td><td id="score-wolves">0</td></tr>
                 <tr><td>Team Ghosts 👻</td><td id="score-ghosts">0</td></tr>
+                <tr><td>Team Witches 🧙‍♀️</td><td id="score-witches">0</td></tr>
+                <tr><td>Team Skeletons 💀</td><td id="score-skeletons">0</td></tr>
             </tbody>
         </table>
     </div>
@@ -342,13 +347,11 @@
             <p style="font-size: 0.9em; margin-top: 10px;">(Hint: The correct comparison is worth <strong>3 points!</strong>)</p>
         </div>
         
-        <!-- VOICE/LISTENING AREA -->
         <div id="listening-area">
             Click 'START LISTENING' below when a team is ready to speak the answer.
         </div>
 
         <div class="controls">
-            <!-- New Listen Button -->
             <button class="action-button listen-button" onclick="startListening()" type="button">👂 START LISTENING</button>
             
             <button class="action-button new-challenge-button" onclick="initiateNewChallenge()" type="button">NEXT CHALLENGE 🔄</button>
@@ -356,7 +359,6 @@
             
             <hr style="border-top: 2px dashed #444; margin: 15px 0 10px 0;">
             
-            <!-- CHALLENGE SETTING -->
             <div class="challenge-setting">
                 <span>Total Challenges for Game (max 30):</span>
                 <input type="number" id="max-challenges-input" value="10" min="1" max="30">
@@ -366,13 +368,14 @@
             
             <hr style="border-top: 2px dashed #444; margin: 15px 0 10px 0;">
             
-            <!-- TEACHER SCORING (Hands-Free) -->
             <h3 style="margin: 5px 0; color: #ccff00; font-family: 'Gothic A1', sans-serif;">TEACHER SCORING (Click Winner to Award +3)</h3>
-            <div class="score-button-grid">
+            <div class="score-button-grid" style="grid-template-columns: repeat(3, 1fr);">
                 <button class="score-button score-bats" data-team="Bats" onclick="awardPoints('Bats')">BATS WIN! 🦇</button>
                 <button class="score-button score-spiders" data-team="Spiders" onclick="awardPoints('Spiders')">SPIDERS WIN! 🕷️</button>
                 <button class="score-button score-wolves" data-team="Wolves" onclick="awardPoints('Wolves')">WOLVES WIN! 🐺</button>
                 <button class="score-button score-ghosts" data-team="Ghosts" onclick="awardPoints('Ghosts')">GHOSTS WIN! 👻</button>
+                <button class="score-button score-witches" data-team="Witches" onclick="awardPoints('Witches')">WITCHES WIN! 🧙‍♀️</button>
+                <button class="score-button score-skeletons" data-team="Skeletons" onclick="awardPoints('Skeletons')">SKELETONS WIN! 💀</button>
             </div>
         </div>
     </div>
@@ -382,7 +385,7 @@
     </footer>
 
     <script>
-        // *** JAVASCRIPT LOGIC FOR INTERACTIVITY (HANDS-FREE, 4 TEAMS, 30 SHUFFLED CHALLENGES) ***
+        // *** JAVASCRIPT LOGIC FOR INTERACTIVITY (HANDS-FREE, 6 TEAMS, 30 SHUFFLED CHALLENGES) ***
         let currentChallengeIndex = -1;
         let shuffledChallenges = [];
         let answerSpoken = false; // Flag to track if an answer was "submitted"
@@ -443,6 +446,7 @@
 
         // --- Core Game Functions ---
         function updateScore(team, points) {
+            // Team name needs to be lowercased to match the ID format (e.g., 'score-witches')
             const scoreElement = document.getElementById(`score-${team.toLowerCase()}`);
             
             if (scoreElement) {
@@ -466,11 +470,13 @@
             
             MAX_CHALLENGES_USED = newMax;
 
-            // Reset scores in the DOM
+            // Reset scores in the DOM (Updated to include new teams)
             document.getElementById('score-bats').innerText = 0;
             document.getElementById('score-spiders').innerText = 0;
             document.getElementById('score-wolves').innerText = 0;
             document.getElementById('score-ghosts').innerText = 0;
+            document.getElementById('score-witches').innerText = 0; // NEW
+            document.getElementById('score-skeletons').innerText = 0; // NEW
             
             // Re-shuffle all challenges and slice based on the new max
             shuffledChallenges = shuffleArray([...allChallenges]).slice(0, MAX_CHALLENGES_USED);
